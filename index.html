@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SafeSpace — You are heard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--sf:#161b22;--sf2:#1c2330;--bd:#2a3441;
+  --tx:#e6edf3;--dm:#8b949e;--dmr:#3d4a5a;
+  --ac:#7c6af7;--ac2:#a78bfa;--glow:rgba(124,106,247,.15);
+  --gr:#56d364;--gr2:rgba(86,211,100,.1);
+  --rd:#f78166;--yl:#e3b341;
+  --r:14px;--rs:8px;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);overflow:hidden}
+.app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative}
+.screen{display:none;flex-direction:column;height:100%}
+.screen.active{display:flex}
+
+/* WELCOME */
+.welcome{justify-content:center;align-items:center;padding:24px 22px;text-align:center;overflow-y:auto;gap:0}
+.logo{width:64px;height:64px;border-radius:50%;background:var(--glow);border:1.5px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 18px;box-shadow:0 0 30px var(--glow)}
+.welcome h1{font-family:'DM Serif Display',serif;font-size:1.75rem;line-height:1.15;margin-bottom:9px}
+.welcome h1 em{font-style:italic;color:var(--ac2)}
+.welcome>p{font-size:.88rem;color:var(--dm);line-height:1.6;max-width:290px;margin:0 auto 22px}
+.badges{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.badge{font-size:.7rem;padding:4px 10px;border-radius:20px;background:var(--sf);border:1px solid var(--bd);color:var(--dm);display:flex;align-items:center;gap:4px}
+.badge .dot{width:5px;height:5px;border-radius:50%;background:var(--gr);box-shadow:0 0 5px var(--gr)}
+.cards{display:flex;flex-direction:column;gap:9px;width:100%}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;cursor:pointer;text-align:left;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:13px}
+.card:hover,.card:focus{border-color:var(--ac);background:var(--glow);outline:none}
+.ci{font-size:1.4rem;flex-shrink:0}
+.card h3{font-size:.88rem;font-weight:500;margin-bottom:2px}
+.card p{font-size:.76rem;color:var(--dm);line-height:1.4;margin:0}
+
+/* HEADERS */
+.hdr{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--sf)}
+.bk{width:29px;height:29px;border-radius:50%;border:1px solid var(--bd);background:none;color:var(--dm);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.bk:hover{border-color:var(--ac);color:var(--ac)}
+.htitle{font-size:.86rem;font-weight:500;color:var(--dm)}
+.anon{font-size:.67rem;padding:3px 8px;border-radius:20px;background:var(--gr2);color:var(--gr);border:1px solid rgba(86,211,100,.2)}
+.sl{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dmr);margin-bottom:5px}
+
+/* MOOD */
+.mbody{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:16px}
+.mbody h2{font-family:'DM Serif Display',serif;font-size:1.25rem;line-height:1.3}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.mb{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);padding:11px 5px;cursor:pointer;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px}
+.mb:hover,.mb.sel{border-color:var(--ac);background:var(--glow)}
+.mb .e{font-size:1.5rem}
+.mb .l{font-size:.66rem;color:var(--dm)}
+.tagwrap{display:flex;flex-wrap:wrap;gap:6px}
+.tb{font-size:.76rem;padding:5px 11px;border-radius:20px;border:1px solid var(--bd);background:var(--sf);color:var(--dm);cursor:pointer;transition:all .15s}
+.tb:hover,.tb.sel{border-color:var(--ac);color:var(--ac2);background:var(--glow)}
+.cta{width:100%;padding:13px;border-radius:var(--r);border:none;background:var(--ac);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:opacity .15s;margin-top:auto}
+.cta:hover{opacity:.85}
+.cta:disabled{opacity:.3;cursor:not-allowed}
+
+/* CHAT */
+.chdr{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+.cav{width:33px;height:33px;border-radius:50%;background:var(--glow);border:1.5px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.cmeta{flex:1;min-width:0}
+.cmeta .cn{font-size:.86rem;font-weight:500}
+.cmeta .cs{font-size:.68rem;color:var(--gr);display:flex;align-items:center;gap:3px}
+.cmeta .cs::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gr)}
+.cacts{display:flex;gap:5px}
+.ib{width:30px;height:30px;border-radius:50%;border:1px solid var(--bd);background:none;color:var(--dm);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ib:hover{border-color:var(--ac);color:var(--ac)}
+.msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
+.msgs::-webkit-scrollbar{width:3px}
+.msgs::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.msg{display:flex;flex-direction:column;max-width:82%}
+.msg.u{align-self:flex-end;align-items:flex-end}
+.msg.a{align-self:flex-start;align-items:flex-start}
+.bbl{padding:9px 13px;border-radius:15px;font-size:.84rem;line-height:1.55}
+.msg.u .bbl{background:var(--ac);color:#fff;border-bottom-right-radius:3px}
+.msg.a .bbl{background:var(--sf2);color:var(--tx);border-bottom-left-radius:3px;border:1px solid var(--bd)}
+.mt{font-size:.64rem;color:var(--dmr);margin-top:2px;padding:0 3px}
+.typing{display:none;align-self:flex-start}
+.typing.on{display:flex}
+.tbbl{background:var(--sf2);border:1px solid var(--bd);border-radius:15px;border-bottom-left-radius:3px;padding:10px 13px;display:flex;gap:3px;align-items:center}
+.tbbl span{width:5px;height:5px;border-radius:50%;background:var(--dmr);animation:bop 1.2s infinite}
+.tbbl span:nth-child(2){animation-delay:.2s}
+.tbbl span:nth-child(3){animation-delay:.4s}
+@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px);background:var(--ac2)}}
+.inp-area{padding:9px 11px;border-top:1px solid var(--bd);background:var(--sf);display:flex;gap:7px;align-items:flex-end;flex-shrink:0}
+.tinp{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:19px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:.84rem;color:var(--tx);resize:none;outline:none;max-height:96px;min-height:38px;line-height:1.5;transition:border-color .15s}
+.tinp::placeholder{color:var(--dmr)}
+.tinp:focus{border-color:var(--ac)}
+.sbtn{width:38px;height:38px;border-radius:50%;border:none;background:var(--ac);color:#fff;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.sbtn:hover{opacity:.85}
+.sbtn:disabled{opacity:.3;cursor:not-allowed}
+
+/* ONLINE INDICATOR in chat */
+.online-dot{width:8px;height:8px;border-radius:50%;background:var(--gr);box-shadow:0 0 6px var(--gr);flex-shrink:0}
+
+/* CALL OVERLAY */
+.callover{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0a0a1a,#14082a,#081414);z-index:200;flex-direction:column;align-items:center;justify-content:space-between;padding:56px 24px 46px}
+.callover.on{display:flex}
+.cst{font-size:.76rem;color:var(--dm);letter-spacing:.05em}
+.cwrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.cava{width:96px;height:96px;border-radius:50%;background:var(--glow);border:2px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:2.8rem;animation:pr 2s infinite}
+@keyframes pr{0%{box-shadow:0 0 0 0 rgba(124,106,247,.4)}70%{box-shadow:0 0 0 18px rgba(124,106,247,0)}100%{box-shadow:0 0 0 0 rgba(124,106,247,0)}}
+.cnm{font-family:'DM Serif Display',serif;font-size:1.4rem}
+.csub{font-size:.76rem;color:var(--dm)}
+.ctm{font-size:1.15rem;font-weight:300;color:var(--ac2);letter-spacing:.1em;margin-top:3px}
+.cwave{display:flex;gap:3px;align-items:center;height:28px}
+.cwave span{width:4px;background:var(--ac2);border-radius:2px;animation:wv .8s ease-in-out infinite}
+.cwave span:nth-child(1){animation-delay:0s}.cwave span:nth-child(2){animation-delay:.1s}
+.cwave span:nth-child(3){animation-delay:.2s}.cwave span:nth-child(4){animation-delay:.3s}
+.cwave span:nth-child(5){animation-delay:.2s}.cwave span:nth-child(6){animation-delay:.1s}
+.cwave span:nth-child(7){animation-delay:0s}
+@keyframes wv{0%,100%{height:5px}50%{height:22px}}
+.cctrl{display:flex;gap:18px;align-items:center}
+.cbtn{width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.25rem;transition:transform .15s}
+.cbtn:hover{transform:scale(1.08)}
+.cbtn.mute,.cbtn.spk{background:var(--sf2);border:1px solid var(--bd)}
+.cbtn.mute.on,.cbtn.spk.on{background:var(--ac)}
+.cbtn.end{background:var(--rd);width:62px;height:62px;font-size:1.35rem}
+
+/* PEER */
+.pbody{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:10px}
+.pbanner{background:linear-gradient(135deg,var(--glow),rgba(124,106,247,.04));border:1px solid rgba(124,106,247,.25);border-radius:var(--r);padding:12px 14px;font-size:.78rem;color:var(--dm);line-height:1.5;display:flex;gap:9px}
+.pcard{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px;display:flex;align-items:center;gap:12px;transition:border-color .15s}
+.pcard:hover{border-color:var(--bd)}
+.pav{width:42px;height:42px;border-radius:50%;background:var(--glow);border:1.5px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.pinfo{flex:1;min-width:0}
+.pname{font-size:.85rem;font-weight:500;margin-bottom:2px}
+.ptags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:3px}
+.ptag{font-size:.66rem;padding:2px 7px;border-radius:20px;background:var(--glow);color:var(--ac2);border:1px solid rgba(124,106,247,.2)}
+.pst{font-size:.7rem;color:var(--gr)}
+.pacts{display:flex;gap:5px;flex-shrink:0}
+.pchbtn{padding:6px 12px;border-radius:20px;border:none;background:var(--ac);color:#fff;font-size:.72rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.pcalbtn{width:32px;height:32px;border-radius:50%;border:1px solid var(--bd);background:none;color:var(--gr);font-size:.88rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pcalbtn:hover{background:var(--gr2);border-color:var(--gr)}
+
+/* COMMUNITY */
+.cbody{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
+.cbody::-webkit-scrollbar{width:3px}
+.cbody::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.notice{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px;font-size:.78rem;color:var(--dm);display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.post{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:13px;transition:border-color .15s}
+.post:hover{border-color:rgba(124,106,247,.3)}
+.phdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ppostav{width:28px;height:28px;border-radius:50%;background:var(--glow);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;border:1px solid var(--bd)}
+.pmeta .handle{font-size:.78rem;font-weight:500}
+.pmeta .time{font-size:.66rem;color:var(--dmr)}
+.ptag-pill{display:inline-block;font-size:.66rem;padding:2px 8px;border-radius:20px;background:var(--glow);color:var(--ac2);border:1px solid rgba(124,106,247,.2);margin-bottom:7px}
+.ptext{font-size:.83rem;line-height:1.6;color:var(--tx);margin-bottom:9px}
+.pacts2{display:flex;gap:12px;padding-top:8px;border-top:1px solid var(--bd)}
+.pa{background:none;border:none;font-size:.73rem;color:var(--dmr);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;transition:color .15s}
+.pa:hover{color:var(--ac2)}
+.pa.lk{color:var(--rd)}
+.mod-flag{font-size:.65rem;color:var(--yl);background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.2);border-radius:4px;padding:2px 6px;margin-left:auto}
+.fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:calc(50% - 240px + 13px);width:48px;height:48px;border-radius:50%;border:none;background:var(--ac);color:#fff;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px var(--glow);transition:transform .15s;z-index:10}
+.fab:hover{transform:scale(1.06)}
+@media(max-width:480px){.fab{right:13px}}
+
+/* CRISIS */
+.crisisbody{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.chero{background:linear-gradient(135deg,rgba(247,129,102,.08),rgba(124,106,247,.08));border:1px solid rgba(247,129,102,.25);border-radius:var(--r);padding:16px;text-align:center}
+.chero .icon{font-size:2.3rem;margin-bottom:9px}
+.chero h2{font-family:'DM Serif Display',serif;font-size:1.15rem;margin-bottom:7px}
+.chero p{font-size:.8rem;color:var(--dm);line-height:1.55}
+.rcard{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:13px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:border-color .15s}
+.rcard:hover{border-color:var(--ac)}
+.ricon{font-size:1.3rem;flex-shrink:0}
+.rinfo .rname{font-size:.86rem;font-weight:500;margin-bottom:2px}
+.rinfo .rdesc{font-size:.73rem;color:var(--dm)}
+.rinfo .rnum{font-size:.78rem;color:var(--gr);font-weight:500;margin-top:2px}
+.rarr{margin-left:auto;color:var(--dmr);font-size:.78rem}
+.bcard{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px}
+.bcard h3{font-size:.83rem;font-weight:500;margin-bottom:10px;color:var(--dm)}
+.bcirc{width:76px;height:76px;border-radius:50%;border:2px solid var(--ac);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:.74rem;color:var(--ac2);transition:transform 4s ease-in-out}
+.bcirc.inh{transform:scale(1.35)}
+.bcirc.exh{transform:scale(1)}
+.blbl{text-align:center;font-size:.76rem;color:var(--dm);margin-bottom:8px}
+
+/* MOD PANEL */
+.modpanel{flex-direction:column}
+.modbody{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:10px}
+.modstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mstat{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:12px;text-align:center}
+.mstat .val{font-size:1.4rem;font-weight:500;color:var(--ac2)}
+.mstat .lbl{font-size:.68rem;color:var(--dm);margin-top:3px}
+.mitem{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:13px}
+.mitem.flagged{border-color:rgba(227,179,65,.4);background:rgba(227,179,65,.04)}
+.mitem .mtext{font-size:.82rem;line-height:1.55;margin-bottom:10px;color:var(--tx)}
+.mitem-acts{display:flex;gap:7px}
+.mapprove{padding:6px 13px;border-radius:var(--rs);border:none;background:rgba(86,211,100,.15);color:var(--gr);font-size:.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid rgba(86,211,100,.3)}
+.mremove{padding:6px 13px;border-radius:var(--rs);border:none;background:rgba(247,129,102,.12);color:var(--rd);font-size:.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid rgba(247,129,102,.25)}
+.mwarn{padding:6px 13px;border-radius:var(--rs);border:none;background:rgba(227,179,65,.1);color:var(--yl);font-size:.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid rgba(227,179,65,.2)}
+
+/* NAV */
+.bnav{display:flex;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nbtn{flex:1;background:none;border:none;padding:9px 5px;font-size:.63rem;color:var(--dmr);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:'DM Sans',sans-serif;transition:color .15s}
+.nbtn .ni{font-size:1.1rem}
+.nbtn.on{color:var(--ac2)}
+
+/* MODAL */
+.mover{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:100;align-items:flex-end;justify-content:center}
+.mover.op{display:flex}
+.modal{width:100%;max-width:480px;background:var(--sf);border-radius:var(--r) var(--r) 0 0;padding:17px 17px calc(17px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bd)}
+.modal h3{font-size:.86rem;font-weight:500;margin-bottom:11px;color:var(--dm)}
+.modal textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rs);padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:.84rem;color:var(--tx);resize:none;min-height:88px;outline:none;margin-bottom:9px}
+.modal textarea::placeholder{color:var(--dmr)}
+.modal textarea:focus{border-color:var(--ac)}
+.mfooter{display:flex;gap:7px;justify-content:flex-end;margin-top:4px}
+.mcancel{padding:8px 14px;border-radius:var(--rs);border:1px solid var(--bd);background:none;color:var(--dm);font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer}
+.mpost{padding:8px 18px;border-radius:var(--rs);border:none;background:var(--ac);color:#fff;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer}
+
+/* LOADING */
+.loader{text-align:center;padding:24px;color:var(--dm);font-size:.82rem;display:flex;flex-direction:column;align-items:center;gap:10px}
+.spin{width:22px;height:22px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(76px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(14px);background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:8px 16px;font-size:.78rem;color:var(--tx);opacity:0;transition:all .28s;z-index:400;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:32px 16px;color:var(--dm);font-size:.82rem;line-height:1.6}
+.empty .eicon{font-size:2rem;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- WELCOME -->
+<div class="screen welcome active" id="sc-home">
+  <div class="logo">🌿</div>
+  <h1>A space where<br><em>you are heard</em></h1>
+  <p>No names. No judgment. No blame. Say what's on your mind — freely and safely.</p>
+  <div class="badges">
+    <div class="badge"><span class="dot"></span>Anonymous</div>
+    <div class="badge">🔒 Private</div>
+    <div class="badge">💜 Non-judgmental</div>
+    <div class="badge">🛡️ Moderated</div>
+  </div>
+  <div class="cards">
+    <button class="card" onclick="goMood('ai')"><div class="ci">🤖</div><div><h3>Talk to AI Support</h3><p>Compassionate AI listener, available anytime.</p></div></button>
+    <button class="card" onclick="goMood('peer')"><div class="ci">🫂</div><div><h3>Connect with a Peer</h3><p>Anonymous chat or voice call with someone who understands.</p></div></button>
+    <button class="card" onclick="openCommunity()"><div class="ci">🌍</div><div><h3>Community Stories</h3><p>Share anonymously. Read others. You're not alone.</p></div></button>
+    <button class="card" onclick="showScreen('sc-crisis')"><div class="ci">🆘</div><div><h3>Crisis Support</h3><p>Helplines, breathing exercises, immediate help.</p></div></button>
+  </div>
+</div>
+
+<!-- MOOD -->
+<div class="screen" id="sc-mood">
+  <div class="hdr"><button class="bk" onclick="goBack()">←</button><span class="htitle">How are you feeling?</span></div>
+  <div class="mbody">
+    <h2>Check in with yourself</h2>
+    <div><div class="sl">Your mood right now</div>
+      <div class="mgrid">
+        <button class="mb" data-mood="overwhelmed" onclick="selMood(this)"><span class="e">😰</span><span class="l">Overwhelmed</span></button>
+        <button class="mb" data-mood="sad" onclick="selMood(this)"><span class="e">😔</span><span class="l">Sad</span></button>
+        <button class="mb" data-mood="anxious" onclick="selMood(this)"><span class="e">😟</span><span class="l">Anxious</span></button>
+        <button class="mb" data-mood="angry" onclick="selMood(this)"><span class="e">😤</span><span class="l">Angry</span></button>
+        <button class="mb" data-mood="lonely" onclick="selMood(this)"><span class="e">🥺</span><span class="l">Lonely</span></button>
+        <button class="mb" data-mood="numb" onclick="selMood(this)"><span class="e">😶</span><span class="l">Numb</span></button>
+        <button class="mb" data-mood="tired" onclick="selMood(this)"><span class="e">😴</span><span class="l">Tired</span></button>
+        <button class="mb" data-mood="confused" onclick="selMood(this)"><span class="e">😕</span><span class="l">Confused</span></button>
+        <button class="mb" data-mood="okay" onclick="selMood(this)"><span class="e">🙂</span><span class="l">Okay</span></button>
+      </div>
+    </div>
+    <div><div class="sl">What's weighing on you? (optional)</div>
+      <div class="tagwrap" id="tagwrap">
+        <button class="tb" onclick="togTag(this)">Family</button><button class="tb" onclick="togTag(this)">Relationship</button>
+        <button class="tb" onclick="togTag(this)">Work</button><button class="tb" onclick="togTag(this)">Loneliness</button>
+        <button class="tb" onclick="togTag(this)">Self-worth</button><button class="tb" onclick="togTag(this)">Grief</button>
+        <button class="tb" onclick="togTag(this)">Stress</button><button class="tb" onclick="togTag(this)">Health</button>
+        <button class="tb" onclick="togTag(this)">Just venting</button>
+      </div>
+    </div>
+    <button class="cta" id="ctabtn" disabled onclick="goNext()">Continue →</button>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="screen" id="sc-chat">
+  <div class="chdr">
+    <div class="cav" id="cav">🌿</div>
+    <div class="cmeta">
+      <div class="cn" id="cname">SafeSpace Listener</div>
+      <div class="cs" id="cstatus">Always here for you</div>
+    </div>
+    <div class="cacts">
+      <button class="ib" onclick="startCall()" title="Voice call">📞</button>
+      <div class="anon">Anonymous</div>
+    </div>
+  </div>
+  <div class="msgs" id="msgs"></div>
+  <div class="typing" id="typin"><div class="tbbl"><span></span><span></span><span></span></div></div>
+  <div class="inp-area">
+    <textarea class="tinp" id="tinp" placeholder="Say anything… no judgment here" rows="1" onkeydown="hKey(event)" oninput="aResize(this)"></textarea>
+    <button class="sbtn" id="sbtn" onclick="sendMsg()">↑</button>
+  </div>
+</div>
+
+<!-- PEER -->
+<div class="screen" id="sc-peer">
+  <div class="hdr"><button class="bk" onclick="goBack()">←</button><span class="htitle">Find a Peer</span><div style="margin-left:auto" class="anon">Anonymous</div></div>
+  <div class="pbody" id="pbody"></div>
+</div>
+
+<!-- COMMUNITY -->
+<div class="screen" id="sc-community">
+  <div class="hdr"><button class="bk" onclick="goHome()">←</button><span class="htitle">Community Stories</span><div style="margin-left:auto" class="anon">Anonymous</div></div>
+  <div class="cbody" id="cbody"><div class="loader"><div class="spin"></div>Loading stories…</div></div>
+  <button class="fab" onclick="openPostModal()">+</button>
+</div>
+
+<!-- CRISIS -->
+<div class="screen" id="sc-crisis">
+  <div class="hdr"><button class="bk" onclick="goHome()">←</button><span class="htitle">Crisis Support</span></div>
+  <div class="crisisbody">
+    <div class="chero"><div class="icon">💙</div><h2>You matter. Help is real.</h2><p>If you're in crisis or feeling unsafe, reach out to a helpline. Trained people are ready to listen right now.</p></div>
+    <div class="rcard" onclick="toast('iCall: 9152987821 — Please call from your phone')"><div class="ricon">📱</div><div class="rinfo"><div class="rname">iCall — India</div><div class="rdesc">Free, confidential psychological support</div><div class="rnum">9152987821</div></div><div class="rarr">→</div></div>
+    <div class="rcard" onclick="toast('Vandrevala: 1860-2662-345')"><div class="ricon">🤝</div><div class="rinfo"><div class="rname">Vandrevala Foundation</div><div class="rdesc">24/7 mental health helpline, India</div><div class="rnum">1860-2662-345</div></div><div class="rarr">→</div></div>
+    <div class="rcard" onclick="toast('iDare: 9820466627')"><div class="ricon">🧠</div><div class="rinfo"><div class="rname">iDare Helpline</div><div class="rdesc">Emotional support & counselling</div><div class="rnum">9820466627</div></div><div class="rarr">→</div></div>
+    <div class="bcard">
+      <h3>🫁 Guided breathing — calm in 1 minute</h3>
+      <div class="bcirc" id="bcirc">Breathe</div>
+      <div class="blbl" id="blbl">Tap button to start</div>
+      <button class="cta" onclick="startBreath()">Start breathing exercise</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODERATION PANEL -->
+<div class="screen modpanel" id="sc-mod">
+  <div class="hdr"><button class="bk" onclick="goHome()">←</button><span class="htitle">🛡️ Moderation Panel</span></div>
+  <div class="modbody" id="modbody"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- CALL OVERLAY -->
+<div class="callover" id="callover">
+  <div class="cst" id="cst">Connecting…</div>
+  <div class="cwrap">
+    <div class="cava" id="cava">🌿</div>
+    <div class="cnm" id="cnm">SafeSpace Listener</div>
+    <div class="csub" id="csub">Anonymous · Confidential</div>
+    <div class="ctm" id="ctm" style="display:none">0:00</div>
+    <div class="cwave" id="cwave" style="display:none"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+  <div class="cctrl">
+    <button class="cbtn mute" id="mutebtn" onclick="togMute()" title="Mute">🎙️</button>
+    <button class="cbtn end" onclick="endCall()" title="End call">📵</button>
+    <button class="cbtn spk" id="spkbtn" onclick="togSpk()" title="Speaker">🔊</button>
+  </div>
+</div>
+
+<!-- POST MODAL -->
+<div class="mover" id="postmodal">
+  <div class="modal">
+    <h3>Share your story anonymously</h3>
+    <textarea id="posttxt" placeholder="What's on your mind? No one will know who you are." maxlength="500"></textarea>
+    <div class="tagwrap" id="modaltags" style="margin-bottom:9px">
+      <button class="tb" onclick="togTag(this)">Family</button><button class="tb" onclick="togTag(this)">Relationship</button>
+      <button class="tb" onclick="togTag(this)">Work</button><button class="tb" onclick="togTag(this)">Grief</button>
+      <button class="tb" onclick="togTag(this)">Just venting</button>
+    </div>
+    <div class="mfooter"><button class="mcancel" onclick="closePostModal()">Cancel</button><button class="mpost" onclick="submitPost()">Post anonymously</button></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let mode='ai', selMoodVal='', chatHist=[], isTyping=false;
+let callSec=0, callTmr=null, muted=false, speaker=false;
+let breathTmr=null, breathOn=false;
+let dbRef=null, roomRef=null, sampleRef=null;
+let myId='anon_'+Math.random().toString(36).slice(2,8);
+
+const EMOJIS=['🌸','🌊','🍃','✨','🌙','🌻','💫','🦋','🌈','🔮','🫧','🌷'];
+const SOULS=['Wandering Soul','Gentle Heart','Quiet Spirit','Open Sky','Still Water','Morning Mist','Soft Light','Moonbeam'];
+const re=()=>EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+const rs=()=>SOULS[Math.floor(Math.random()*SOULS.length)];
+
+// ─────────────────────────────────────────────
+// INIT CAPABILITIES
+// ─────────────────────────────────────────────
+const BAD_WORDS=['kill','suicide','hurt myself','end my life','self harm'];
+
+async function initCaps(){
+  try{
+    dbRef=await window.claude?.use('db');
+    roomRef=await window.claude?.use('room');
+    sampleRef=await window.claude?.use('sample');
+    if(roomRef){
+      roomRef.on('peer_msg',handleRoomMsg);
+      roomRef.on('peer_typing',handleRoomTyping);
+    }
+  }catch(e){}
+}
+initCaps();
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){showScreen('sc-home')}
+function goBack(){showScreen('sc-home');selMoodVal='';document.querySelectorAll('.mb').forEach(b=>b.classList.remove('sel'));document.querySelectorAll('#tagwrap .tb').forEach(b=>b.classList.remove('sel'));document.getElementById('ctabtn').disabled=true;}
+function goMood(m){mode=m;showScreen('sc-mood')}
+function selMood(btn){document.querySelectorAll('.mb').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');selMoodVal=btn.dataset.mood;document.getElementById('ctabtn').disabled=false}
+function togTag(btn){btn.classList.toggle('sel')}
+function goNext(){
+  const tags=[...document.querySelectorAll('#tagwrap .tb.sel')].map(b=>b.textContent);
+  if(mode==='ai'){initAIChat(selMoodVal,tags);showScreen('sc-chat')}
+  else if(mode==='peer'){renderPeers();showScreen('sc-peer')}
+}
+function openCommunity(){loadPosts();showScreen('sc-community')}
+
+// ─────────────────────────────────────────────
+// AI CHAT
+// ─────────────────────────────────────────────
+function initAIChat(mood,tags){
+  chatHist=[];document.getElementById('msgs').innerHTML='';
+  document.getElementById('cav').textContent='🌿';
+  document.getElementById('cname').textContent='SafeSpace Listener';
+  document.getElementById('cstatus').textContent='AI Support · Always here';
+  const tagTxt=tags.length?` about ${tags.join(', ')}`:'';
+  window._sys=`You are a warm, compassionate, non-judgmental listener in a safe space app. The user feels ${mood}${tagTxt}. Listen deeply. Never judge. Reflect feelings with empathy. Never give unsolicited advice. Keep responses 2-4 sentences. Occasionally ask one gentle open question. Remind them their feelings are valid. This is a sacred anonymous space.`;
+  const greet={
+    overwhelmed:`You're carrying a lot right now${tagTxt}. That's heavy, and it makes complete sense you feel overwhelmed. You don't have to figure it all out tonight. What's weighing on you the most?`,
+    sad:`Sadness has its own kind of weight${tagTxt}. I'm glad you're here. You don't have to explain or justify how you feel. What's been on your heart?`,
+    anxious:`Anxiety can make everything feel louder${tagTxt}. Take your time — nothing you say here will be judged. What's your mind running on?`,
+    angry:`Anger usually means something important was crossed${tagTxt}. It's okay to feel this. I'm listening without any judgment. What happened?`,
+    lonely:`Loneliness is one of the hardest feelings${tagTxt}. The fact that you came here matters. You're not as alone as it might feel. What's going on?`,
+    numb:`Sometimes when there's too much, the mind goes quiet just to cope${tagTxt}. That numbness is real. I'm here — no pressure. What's it been like lately?`,
+    tired:`Being really tired${tagTxt} is more than just sleep. It sounds like you've been giving a lot. How long have you been feeling this way?`,
+    confused:`Confusion often signals something real underneath${tagTxt}. You don't need it figured out before you talk. What's swirling around for you?`,
+    okay:`You're okay — and sometimes "okay" holds a lot too${tagTxt}. What brought you here today?`
+  };
+  const g=greet[mood]||`I'm here and listening. This is your safe space — no judgment, ever. What's on your mind?`;
+  addMsg('a',g);chatHist.push({role:'assistant',content:g});
+}
+
+function addMsg(role,text){
+  const el=document.getElementById('msgs');
+  const d=document.createElement('div');d.className=`msg ${role}`;
+  const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  d.innerHTML=`<div class="bbl">${esc(text)}</div><div class="mt">${t}</div>`;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+}
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+function setTyp(s){document.getElementById('typin').classList.toggle('on',s);document.getElementById('msgs').scrollTop=99999}
+
+async function sendMsg(){
+  const inp=document.getElementById('tinp');
+  const txt=inp.value.trim();if(!txt||isTyping)return;
+  inp.value='';aResize(inp);
+  addMsg('u',txt);chatHist.push({role:'user',content:txt});
+  isTyping=true;setTyp(true);document.getElementById('sbtn').disabled=true;
+  if(roomRef&&mode==='peer'){
+    try{await roomRef.emit('peer_msg',{text:txt,from:myId});}catch(e){}
+  }
+  try{
+    if(sampleRef){
+      setTyp(false);
+      const d=document.createElement('div');d.className='msg a';
+      const bbl=document.createElement('div');bbl.className='bbl';
+      const mt=document.createElement('div');mt.className='mt';
+      mt.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      d.appendChild(bbl);d.appendChild(mt);
+      document.getElementById('msgs').appendChild(d);
+      let full='';
+      const hist=[{role:'user',content:`[SYSTEM: ${window._sys}]\n\n${chatHist.map(m=>`${m.role==='user'?'User':'Assistant'}: ${m.content}`).join('\n')}\n\nRespond as the compassionate listener:`}];
+      await sampleRef(hist,{onText:({text:t})=>{full=t;bbl.innerHTML=esc(t);document.getElementById('msgs').scrollTop=99999}});
+      chatHist.push({role:'assistant',content:full});
+    } else {
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:window._sys,messages:chatHist})});
+      const data=await r.json();const reply=data.content?.[0]?.text||"I'm here. Take your time.";
+      setTyp(false);addMsg('a',reply);chatHist.push({role:'assistant',content:reply});
+    }
+  }catch(e){setTyp(false);addMsg('a',"I'm still here. There was a small hiccup — please try again.");}
+  isTyping=false;document.getElementById('sbtn').disabled=false;
+}
+function hKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}}
+function aResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,96)+'px'}
+
+// ─────────────────────────────────────────────
+// REAL-TIME PEER (room)
+// ─────────────────────────────────────────────
+function handleRoomMsg(data){
+  if(data.from===myId)return;
+  setTyp(false);addMsg('a',data.text||'…');
+}
+function handleRoomTyping(data){
+  if(data.from===myId)return;
+  setTyp(true);setTimeout(()=>setTyp(false),3000);
+}
+
+const PEERS=[
+  {emoji:'🌊',mood:'Lonely',tags:['Family','Relationship'],wait:'Now'},
+  {emoji:'🍃',mood:'Anxious',tags:['Work','Stress'],wait:'Now'},
+  {emoji:'💫',mood:'Sad',tags:['Grief','Self-worth'],wait:'~2 min'},
+  {emoji:'🌸',mood:'Overwhelmed',tags:['Family'],wait:'~5 min'},
+];
+function renderPeers(){
+  const body=document.getElementById('pbody');
+  body.innerHTML=`<div class="pbanner">🔍 Matching you anonymously with peers going through similar feelings. No names or identities are ever revealed.</div>`;
+  PEERS.forEach((p,i)=>{
+    const nm=rs(),card=document.createElement('div');card.className='pcard';
+    card.innerHTML=`<div class="pav">${p.emoji}</div><div class="pinfo"><div class="pname">${nm}</div><div class="ptags">${p.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div><div class="pst">● Online · Wait: ${p.wait}</div></div><div class="pacts"><button class="pchbtn" onclick="startPeer('${p.emoji}','${nm}','${p.mood}')">Chat</button><button class="pcalbtn" onclick="openPeerCall('${p.emoji}','${nm}')" title="Voice call">📞</button></div>`;
+    body.appendChild(card);
+  });
+}
+function startPeer(emoji,name,mood){
+  chatHist=[];document.getElementById('msgs').innerHTML='';mode='peer';
+  document.getElementById('cav').textContent=emoji;
+  document.getElementById('cname').textContent=name;
+  document.getElementById('cstatus').textContent='Anonymous Peer · Online';
+  window._sys=`You are roleplaying as an anonymous peer. You are feeling ${mood}. Be warm, real, human. Share that you understand because you've felt similar. Keep messages short and conversational. No identity revealed.`;
+  const g=`Hey… glad you reached out. I've been feeling ${mood.toLowerCase()} too lately, so I think I get it. What's going on for you?`;
+  addMsg('a',g);chatHist.push({role:'assistant',content:g});
+  showScreen('sc-chat');
+}
+
+// ─────────────────────────────────────────────
+// COMMUNITY — persistent via db
+// ─────────────────────────────────────────────
+let postsUnsub=null;
+
+function loadPosts(){
+  const body=document.getElementById('cbody');
+  body.innerHTML=`<div class="notice">🔒 All posts are completely anonymous. No usernames, no photos, no identity is ever revealed.</div><div class="loader"><div class="spin"></div>Loading stories…</div>`;
+  if(!dbRef){renderFallbackPosts(body);return;}
+  try{
+    if(postsUnsub)postsUnsub();
+    const q=dbRef.collection('posts').orderBy('ts','desc').limit(30);
+    postsUnsub=q.onSnapshot(snap=>{
+      const items=snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderPosts(body,items);
+    });
+  }catch(e){renderFallbackPosts(body);}
+}
+
+const FALLBACK=[
+  {id:'f1',emoji:'🌸',text:"I've been carrying so much guilt about not being a 'good enough' son. Today I just wanted to say it out loud.",tag:'Family',likes:14,time:'2h ago'},
+  {id:'f2',emoji:'🌊',text:"My relationship ended 3 months ago and I still reach for my phone to text her. Some days are okay. Today is not.",tag:'Grief',likes:27,time:'5h ago'},
+  {id:'f3',emoji:'🍃',text:"Anxiety has been really loud this week. Work feels impossible. But I'm here, still going. That has to count for something.",tag:'Work',likes:31,time:'1d ago'},
+  {id:'f4',emoji:'💫',text:"I never talk about my feelings with anyone. First time putting this in words: I'm exhausted from pretending everything is fine.",tag:'Just venting',likes:46,time:'2d ago'},
+];
+let fallbackLikes={};
+function renderFallbackPosts(body){
+  const notice=body.querySelector('.notice');
+  body.innerHTML='';body.appendChild(notice||createNotice());
+  FALLBACK.forEach(p=>body.appendChild(createPostCard(p)));
+}
+function createNotice(){const d=document.createElement('div');d.className='notice';d.innerHTML='🔒 All posts are completely anonymous. No usernames, no photos, no identity is ever revealed.';return d;}
+
+function renderPosts(body,items){
+  const notice=body.querySelector('.notice');
+  body.innerHTML='';
+  if(notice)body.appendChild(notice);else body.appendChild(createNotice());
+  if(!items.length){const e=document.createElement('div');e.className='empty';e.innerHTML='<div class="eicon">🌱</div>No stories yet.<br>Be the first to share.';body.appendChild(e);return;}
+  items.forEach(p=>body.appendChild(createPostCard(p)));
+}
+
+function createPostCard(p){
+  const card=document.createElement('div');card.className='post';
+  const ago=p.ts?timeAgo(p.ts):p.time||'just now';
+  const flagged=isFlagged(p.text);
+  if(flagged){card.innerHTML=`<div class="notice" style="color:var(--yl)">⚠️ This post is under review by moderators.</div>`;return card;}
+  const likedKey=`liked_${p.id}`;
+  const liked=localStorage.getItem(likedKey)==='1';
+  const likes=(p.likes||0)+(liked&&!p.likedByMe?0:0);
+  card.innerHTML=`
+    <div class="phdr"><div class="ppostav">${p.emoji||re()}</div><div class="pmeta"><div class="handle">Anonymous Soul</div><div class="time">${ago}</div></div>${flagged?'<span class="mod-flag">Under review</span>':''}</div>
+    <span class="ptag-pill">${p.tag||'Sharing'}</span>
+    <div class="ptext">${esc(p.text)}</div>
+    <div class="pacts2">
+      <button class="pa ${liked?'lk':''}" data-id="${p.id}" onclick="likePost(this,'${p.id}',${p.likes||0})">${liked?'❤️':'🤍'} ${p.likes||0}</button>
+      <button class="pa" onclick="supportPost(this)">💬 Support</button>
+      <button class="pa" onclick="flagPost('${p.id}')">🚩 Report</button>
+    </div>`;
+  return card;
+}
+
+function isFlagged(text){
+  if(!text)return false;
+  return BAD_WORDS.some(w=>text.toLowerCase().includes(w));
+}
+
+async function likePost(btn,id,cur){
+  const key=`liked_${id}`;
+  const liked=localStorage.getItem(key)==='1';
+  const newLiked=!liked;
+  localStorage.setItem(key,newLiked?'1':'0');
+  const newCount=cur+(newLiked?1:-1);
+  btn.classList.toggle('lk',newLiked);
+  btn.textContent=`${newLiked?'❤️':'🤍'} ${newCount}`;
+  if(dbRef){try{await dbRef.doc(`posts/${id}`).update({likes:newCount});}catch(e){}}
+}
+function supportPost(btn){btn.textContent='💜 Sent';btn.style.color='var(--ac2)';setTimeout(()=>{btn.textContent='💬 Support';btn.style.color='';},2200)}
+async function flagPost(id){
+  if(dbRef){try{await dbRef.doc(`posts/${id}`).update({flagged:true,flaggedAt:Date.now()});}catch(e){}}
+  toast('Post reported to moderators 🛡️');
+}
+
+function timeAgo(ts){
+  const d=Date.now()-ts,s=Math.floor(d/1000),m=Math.floor(s/60),h=Math.floor(m/60),dy=Math.floor(h/24);
+  if(s<60)return'just now';if(m<60)return`${m}m ago`;if(h<24)return`${h}h ago`;return`${dy}d ago`;
+}
+
+// ─────────────────────────────────────────────
+// POST MODAL
+// ─────────────────────────────────────────────
+function openPostModal(){document.getElementById('postmodal').classList.add('op');document.getElementById('posttxt').focus()}
+function closePostModal(){document.getElementById('postmodal').classList.remove('op');document.getElementById('posttxt').value='';document.querySelectorAll('#modaltags .tb').forEach(b=>b.classList.remove('sel'))}
+
+async function submitPost(){
+  const txt=document.getElementById('posttxt').value.trim();if(!txt)return;
+  const tag=document.querySelector('#modaltags .tb.sel')?.textContent||'Just venting';
+  const post={emoji:re(),text:txt,tag,likes:0,ts:Date.now(),flagged:isFlagged(txt)};
+  if(dbRef){
+    try{await dbRef.collection('posts').doc(`post_${Date.now()}_${Math.random().toString(36).slice(2,6)}`).set(post);}
+    catch(e){addFallbackPost(post);}
+  } else {addFallbackPost(post);}
+  closePostModal();
+  toast(isFlagged(txt)?'Post submitted for review 🛡️':'Posted anonymously 💜');
+}
+function addFallbackPost(post){FALLBACK.unshift({...post,id:'local_'+Date.now(),time:'just now'});loadPosts();}
+
+// ─────────────────────────────────────────────
+// MODERATION PANEL
+// ─────────────────────────────────────────────
+async function openModPanel(){
+  showScreen('sc-mod');
+  const body=document.getElementById('modbody');
+  body.innerHTML=`<div class="loader"><div class="spin"></div>Loading…</div>`;
+  let flaggedPosts=[];
+  if(dbRef){
+    try{
+      const snap=await dbRef.collection('posts').where('flagged','==',true).limit(20).get();
+      flaggedPosts=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }catch(e){}
+  }
+  const total=FALLBACK.length+(flaggedPosts.length);
+  const flagCount=flaggedPosts.length+FALLBACK.filter(p=>isFlagged(p.text)).length;
+  body.innerHTML=`
+    <div class="modstat">
+      <div class="mstat"><div class="val">${total}</div><div class="lbl">Total Posts</div></div>
+      <div class="mstat"><div class="val" style="color:var(--yl)">${flagCount}</div><div class="lbl">Flagged</div></div>
+      <div class="mstat"><div class="val" style="color:var(--gr)">${total-flagCount}</div><div class="lbl">Approved</div></div>
+    </div>
+    <div class="sl" style="margin-top:6px">Flagged content</div>`;
+  const allFlagged=[...flaggedPosts,...FALLBACK.filter(p=>isFlagged(p.text))];
+  if(!allFlagged.length){const e=document.createElement('div');e.className='empty';e.innerHTML='<div class="eicon">✅</div>No flagged content right now.';body.appendChild(e);return;}
+  allFlagged.forEach(p=>{
+    const item=document.createElement('div');item.className='mitem flagged';
+    item.innerHTML=`<div class="mtext">${esc(p.text)}</div><div class="mitem-acts"><button class="mapprove" onclick="modAction('approve','${p.id}',this)">✓ Approve</button><button class="mremove" onclick="modAction('remove','${p.id}',this)">✕ Remove</button><button class="mwarn" onclick="modAction('warn','${p.id}',this)">⚠ Warn</button></div>`;
+    body.appendChild(item);
+  });
+}
+async function modAction(action,id,btn){
+  const item=btn.closest('.mitem');
+  if(action==='remove'){item.style.opacity='.4';toast('Post removed 🛡️');}
+  else if(action==='approve'){item.style.borderColor='var(--gr)';toast('Post approved ✓');}
+  else{toast('Warning sent to user ⚠️');}
+  if(dbRef){
+    try{
+      if(action==='remove')await dbRef.doc(`posts/${id}`).delete();
+      else await dbRef.doc(`posts/${id}`).update({flagged:false,modAction:action,modAt:Date.now()});
+    }catch(e){}
+  }
+  setTimeout(()=>item.remove(),600);
+}
+
+// ─────────────────────────────────────────────
+// VOICE CALL
+// ─────────────────────────────────────────────
+function startCall(){
+  const name=document.getElementById('cname').textContent;
+  const av=document.getElementById('cav').textContent;
+  openCall(av,name,mode==='peer'?'Anonymous Peer · Confidential':'AI Support · Anonymous');
+}
+function openPeerCall(emoji,name){openCall(emoji,name,'Anonymous Peer · Confidential')}
+function openCall(av,name,sub){
+  document.getElementById('cava').textContent=av;
+  document.getElementById('cnm').textContent=name;
+  document.getElementById('csub').textContent=sub;
+  document.getElementById('cst').textContent='Connecting…';
+  document.getElementById('ctm').style.display='none';
+  document.getElementById('cwave').style.display='none';
+  muted=false;speaker=false;callSec=0;
+  document.getElementById('mutebtn').classList.remove('on');
+  document.getElementById('spkbtn').classList.remove('on');
+  document.getElementById('mutebtn').textContent='🎙️';
+  document.getElementById('callover').classList.add('on');
+  setTimeout(()=>{
+    document.getElementById('cst').textContent='Connected';
+    document.getElementById('ctm').style.display='block';
+    document.getElementById('cwave').style.display='flex';
+    callTmr=setInterval(()=>{callSec++;const m=Math.floor(callSec/60),s=callSec%60;document.getElementById('ctm').textContent=`${m}:${s.toString().padStart(2,'0')}`;},1000);
+  },1800);
+}
+function endCall(){document.getElementById('callover').classList.remove('on');clearInterval(callTmr);toast('Call ended · Identity never shared')}
+function togMute(){muted=!muted;document.getElementById('mutebtn').textContent=muted?'🔇':'🎙️';document.getElementById('mutebtn').classList.toggle('on',muted);toast(muted?'Microphone muted':'Microphone on')}
+function togSpk(){speaker=!speaker;document.getElementById('spkbtn').classList.toggle('on',speaker);toast(speaker?'Speaker on':'Earpiece')}
+
+// ─────────────────────────────────────────────
+// BREATHING
+// ─────────────────────────────────────────────
+function startBreath(){
+  if(breathOn){clearTimeout(breathTmr);breathOn=false;document.getElementById('bcirc').className='bcirc';document.getElementById('blbl').textContent='Tap button to start';return;}
+  breathOn=true;
+  const phases=[{l:'Breathe in…',c:'inh',d:4000},{l:'Hold…',c:'inh',d:4000},{l:'Breathe out slowly…',c:'exh',d:6000},{l:'Rest…',c:'exh',d:2000}];
+  let i=0;const run=()=>{if(!breathOn)return;const ph=phases[i%4];document.getElementById('bcirc').className='bcirc '+ph.c;document.getElementById('blbl').textContent=ph.l;i++;breathTmr=setTimeout(run,ph.d);};run();
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+let toastTimer=null;
+function toast(msg){
+  const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('on');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('on'),2800);
+}
+
+// Secret mod access: tap logo 5x
+let logoTaps=0,logoTimer=null;
+document.querySelector('.logo').addEventListener('click',()=>{
+  logoTaps++;clearTimeout(logoTimer);
+  logoTimer=setTimeout(()=>logoTaps=0,2000);
+  if(logoTaps>=5){logoTaps=0;openModPanel();}
+});
+</script>
+</body>
+</html>
